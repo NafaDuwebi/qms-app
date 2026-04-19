@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import AppShell from '../../components/layout/AppShell'
+import AppShell from '../components/layout/AppShell'
 
 interface DashboardData {
   documents: { total: number; approved: number; draft: number; review: number }
