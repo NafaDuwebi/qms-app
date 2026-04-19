@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import AppShell from '@/components/layout/AppShell'
+import AppShell from '../../components/layout/AppShell'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
