@@ -3,7 +3,7 @@ services:
     name: qms-app
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate && npm run build
+    buildCommand: npm install && echo "=== LIB FILES ===" && ls -la src/lib/ && npx prisma generate && npm run build
     startCommand: node .next/standalone/server.js
     envVars:
       - key: DATABASE_URL
