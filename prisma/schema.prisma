@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(VIEWER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents  Document[]
+  workflows  Workflow[]
+  auditLogs  AuditLog[]
+  comments   WorkflowComment[]
+
+  @@map("users")
+}
+
+model Process {
+  id          String      @id @default(cuid())
+  name        String
+  category    Category
+  description String?
+  parentId    String?
+  parent      Process?    @relation("SubProcesses", fields: [parentId], references: [id])
+  children    Process[]   @relation("SubProcesses")
+  documents   Document[]
+  workflows   Workflow[]
+
+  @@map("processes")
+}
+
+model Document {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  docNumber   String           @unique
+  version     String           @default("1.0")
+  status      DocStatus        @default(DRAFT)
+  type        DocType
+  processId   String?
+  process     Process?         @relation(fields: [processId], references: [id])
+  content     String?
+  fileUrl     String?
+  createdById String
+  createdBy   User             @relation(fields: [createdById], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  versions    DocumentVersion[]
+  auditLogs   AuditLog[]
+
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  version    String
+  content    String?
+  changeNote String?
+  createdAt  DateTime @default(now())
+
+  @@map("document_versions")
+}
+
+model Workflow {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  processId   String?
+  process     Process?          @relation(fields: [processId], references: [id])
+  status      WorkflowStatus    @default(OPEN)
+  priority    Priority          @default(MEDIUM)
+  assignedToId String?
+  assignedTo  User?             @relation(fields: [assignedToId], references: [id])
+  dueDate     DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  comments    WorkflowComment[]
+  auditLogs   AuditLog[]
+
+  @@map("workflows")
+}
+
+model WorkflowComment {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@map("workflow_comments")
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  action     String
+  entityType EntityType
+  entityId   String?
+  details    String?
+  userId     String?
+  user       User?       @relation(fields: [userId], references: [id])
+  documentId String?
+  document   Document?   @relation(fields: [documentId], references: [id])
+  workflowId String?
+  workflow   Workflow?   @relation(fields: [workflowId], references: [id])
+  createdAt  DateTime    @default(now())
+
+  @@map("audit_logs")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum Category {
+  DELIVER_BUSINESS
+  SUPPORT_BUSINESS
+}
+
+enum DocStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  OBSOLETE
+}
+
+enum DocType {
+  PROCESS_ARCHITECTURE
+  ACTIVE_DOCUMENT
+  ORIGINAL_DOCUMENT
+  PROCEDURE
+  RECORD
+  FORM
+  POLICY
+}
+
+enum WorkflowStatus {
+  OPEN
+  IN_PROGRESS
+  REVIEW
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum EntityType {
+  USER
+  DOCUMENT
+  WORKFLOW
+  PROCESS
+}
