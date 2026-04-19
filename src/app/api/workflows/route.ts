@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../../lib/auth'
-import { prisma } from '../../../lib/prisma'
-import { createAuditLog } from '@/lib/audit'
+import { authOptions } from '../../lib/auth'
+import { prisma } from '../../lib/prisma'
+import { createAuditLog } from '../../lib/audit'
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
