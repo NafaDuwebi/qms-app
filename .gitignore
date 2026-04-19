@@ -5,3 +5,4 @@ node_modules/
 .vercel/
 prisma/migrations/
 *.log
+tsconfig.tsbuildinfo
