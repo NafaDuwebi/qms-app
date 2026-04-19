@@ -4,6 +4,9 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
   },
+  webpack: (config) => {
+    return config
+  },
 }
 
 module.exports = nextConfig
