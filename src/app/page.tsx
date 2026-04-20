@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import AppShell from '../components/layout/AppShell'
 
 interface DashboardData {
@@ -19,10 +20,20 @@ const actionColors: Record<string, string> = {
 
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    fetch('/api/dashboard').then((r) => r.json()).then(setData)
-  }, [])
+    fetch('/api/dashboard')
+      .then((r) => {
+        if (r.status === 401) {
+          router.push('/login')
+          return null
+        }
+        return r.json()
+      })
+      .then((d) => { if (d) setData(d) })
+      .catch((e) => console.error('Dashboard fetch error:', e))
+  }, [router])
 
   return (
     <AppShell>
